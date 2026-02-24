@@ -160,6 +160,12 @@ export function DemoChat() {
               <textarea
                 value={input}
                 onChange={(event) => setInput(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" && !event.shiftKey) {
+                    event.preventDefault();
+                    handleSubmit(event as unknown as FormEvent<HTMLFormElement>);
+                  }
+                }}
                 rows={2}
                 maxLength={2000}
                 placeholder="Digite sua mensagem para testar a TESS..."

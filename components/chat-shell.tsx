@@ -346,6 +346,12 @@ export function ChatShell({ user, initialConversations }: ChatShellProps) {
             <textarea
               value={input}
               onChange={(event) => setInput(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" && !event.shiftKey) {
+                  event.preventDefault();
+                  handleSubmit(event as unknown as FormEvent<HTMLFormElement>);
+                }
+              }}
               placeholder="Digite sua mensagem para a TESS..."
               rows={2}
               className="max-h-44 min-h-12 flex-1 resize-y rounded-xl border border-slate-600 bg-slate-900/80 px-4 py-3 text-sm text-slate-100 outline-none transition focus:border-cyan-300/70"
