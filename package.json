@@ -15,7 +15,11 @@
     "db:up": "docker compose up -d mysql",
     "db:down": "docker compose down",
     "db:logs": "docker compose logs -f mysql",
-    "db:reset": "docker compose down -v"
+    "db:reset": "docker compose down -v",
+    "server:up": "docker compose -f docker-compose.server.yml --env-file .env.server up -d --build",
+    "server:down": "docker compose -f docker-compose.server.yml --env-file .env.server down",
+    "server:logs": "docker compose -f docker-compose.server.yml --env-file .env.server logs -f app mysql",
+    "server:migrate": "docker compose -f docker-compose.server.yml --env-file .env.server exec app npx prisma migrate deploy"
   },
   "dependencies": {
     "@prisma/client": "^6.19.2",

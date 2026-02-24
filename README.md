@@ -156,6 +156,10 @@ Aplicacao local: `http://localhost:3000`
 - `npm run prisma:migrate` - cria/aplica migration local
 - `npm run prisma:deploy` - aplica migrations em producao
 - `npm run prisma:studio` - Prisma Studio
+- `npm run server:up` - sobe app + MySQL para servidor (Docker)
+- `npm run server:down` - derruba stack de servidor
+- `npm run server:logs` - logs de app e MySQL
+- `npm run server:migrate` - aplica migrations na stack de servidor
 
 ## Migracoes Prisma
 
@@ -203,6 +207,58 @@ git branch -M main
 git remote add origin https://github.com/andrelealx/tess.git
 git push -u origin main
 ```
+
+## Hospedando tudo em um servidor (front + back + banco)
+
+Se voce quer rodar **tudo no mesmo servidor** (VPS), este projeto agora inclui um `docker-compose.server.yml` para subir:
+
+- `app` (Next.js frontend + backend API)
+- `mysql` (banco de dados)
+
+### 1) Preparar o servidor
+
+No Ubuntu/Debian, instale Docker + Compose plugin e abra as portas necessarias:
+
+```bash
+sudo apt update
+sudo apt install -y docker.io docker-compose-plugin
+sudo systemctl enable --now docker
+```
+
+### 2) Publicar o projeto no servidor
+
+```bash
+git clone <SEU_REPO> tess
+cd tess
+cp .env.server.example .env.server
+```
+
+Edite o `.env.server` com senhas fortes e chaves reais (OpenAI/JWT).
+
+### 3) Subir aplicacao completa
+
+```bash
+npm run server:up
+```
+
+### 4) Aplicar migrations no banco de producao
+
+```bash
+npm run server:migrate
+```
+
+### 5) Operacao no dia a dia
+
+- `npm run server:logs` - logs da app e banco
+- `npm run server:down` - para os containers
+
+### 6) Dominio e HTTPS (recomendado)
+
+- Aponte o DNS para o IP do servidor.
+- Use um proxy reverso (Nginx/Caddy/Traefik) para expor a app na porta 80/443.
+- Se usar Cloudflare, mantenha SSL ativo e bloqueie acesso direto desnecessario.
+
+> Fluxo recomendado para atualizacao: `git pull` -> `npm run server:up` -> `npm run server:migrate`.
 
 ## Deploy na Hostinger (passo a passo)
 
