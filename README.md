@@ -117,6 +117,24 @@ TESS_SYSTEM_PROMPT="Voce e a TESS..."
 - `JWT_SECRET`
 - `NODE_ENV=production`
 
+## Subindo o banco de dados local (Docker)
+
+Se voce quiser criar o banco de forma rapida para desenvolvimento, use o MySQL via Docker Compose:
+
+```bash
+cp .env.example .env
+npm run db:up
+npx prisma migrate dev --name init
+```
+
+Isso cria um container `mysql:8`, inicializa o banco `tess_db` e deixa pronto para o Prisma aplicar as tabelas.
+
+Comandos uteis:
+
+- `npm run db:logs` - acompanha logs do MySQL
+- `npm run db:down` - para os containers
+- `npm run db:reset` - remove containers e volume (apaga dados locais)
+
 ## Como rodar localmente
 
 ```bash
