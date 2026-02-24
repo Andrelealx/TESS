@@ -260,6 +260,37 @@ npm run server:migrate
 
 > Fluxo recomendado para atualizacao: `git pull` -> `npm run server:up` -> `npm run server:migrate`.
 
+## Conectar no MySQL da Hostinger (phpMyAdmin)
+
+Se voce vai usar o banco gerenciado da Hostinger (acesso via phpMyAdmin), configure apenas a `DATABASE_URL` com os dados do painel da Hostinger.
+
+Formato:
+
+```env
+DATABASE_URL="mysql://USUARIO:SENHA_URL_ENCODED@HOST:3306/NOME_DO_BANCO"
+```
+
+Exemplo com os dados que voce informou (senha com `@` deve ser encoded como `%40`):
+
+```env
+DATABASE_URL="mysql://u305836601_TESS_KEYDB:SENHA_URL_ENCODED@HOSTINGER_DB_HOST:3306/u305836601_tess_IA"
+```
+
+> Troque `HOSTINGER_DB_HOST` pelo host real do MySQL mostrado no painel da Hostinger.
+
+### Passos recomendados
+
+1. Atualize o `.env` local com a `DATABASE_URL` da Hostinger.
+2. Gere o client Prisma: `npm run prisma:generate`.
+3. Aplique estrutura no banco remoto: `npm run prisma:deploy`.
+4. Valide a conexao: acesse `/api/health` com a app em execucao.
+
+### Se der erro de conexao
+
+- Verifique se usuario/senha/host/porta estao corretos no painel da Hostinger.
+- Confirme se a senha foi URL-encoded (`@` -> `%40`, `#` -> `%23`, etc.).
+- Verifique se o plano/host permite conexao externa ao MySQL.
+
 ## Deploy na Hostinger (passo a passo)
 
 1. Crie uma aplicacao em **Web Apps Hosting** (Node.js).
