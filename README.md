@@ -117,6 +117,24 @@ TESS_SYSTEM_PROMPT="Voce e a TESS..."
 - `JWT_SECRET`
 - `NODE_ENV=production`
 
+## Subindo o banco de dados local (Docker)
+
+Se voce quiser criar o banco de forma rapida para desenvolvimento, use o MySQL via Docker Compose:
+
+```bash
+cp .env.example .env
+npm run db:up
+npx prisma migrate dev --name init
+```
+
+Isso cria um container `mysql:8`, inicializa o banco `tess_db` e deixa pronto para o Prisma aplicar as tabelas.
+
+Comandos uteis:
+
+- `npm run db:logs` - acompanha logs do MySQL
+- `npm run db:down` - para os containers
+- `npm run db:reset` - remove containers e volume (apaga dados locais)
+
 ## Como rodar localmente
 
 ```bash
@@ -138,6 +156,10 @@ Aplicacao local: `http://localhost:3000`
 - `npm run prisma:migrate` - cria/aplica migration local
 - `npm run prisma:deploy` - aplica migrations em producao
 - `npm run prisma:studio` - Prisma Studio
+- `npm run server:up` - sobe app + MySQL para servidor (Docker)
+- `npm run server:down` - derruba stack de servidor
+- `npm run server:logs` - logs de app e MySQL
+- `npm run server:migrate` - aplica migrations na stack de servidor
 
 ## Migracoes Prisma
 
@@ -185,6 +207,89 @@ git branch -M main
 git remote add origin https://github.com/andrelealx/tess.git
 git push -u origin main
 ```
+
+## Hospedando tudo em um servidor (front + back + banco)
+
+Se voce quer rodar **tudo no mesmo servidor** (VPS), este projeto agora inclui um `docker-compose.server.yml` para subir:
+
+- `app` (Next.js frontend + backend API)
+- `mysql` (banco de dados)
+
+### 1) Preparar o servidor
+
+No Ubuntu/Debian, instale Docker + Compose plugin e abra as portas necessarias:
+
+```bash
+sudo apt update
+sudo apt install -y docker.io docker-compose-plugin
+sudo systemctl enable --now docker
+```
+
+### 2) Publicar o projeto no servidor
+
+```bash
+git clone <SEU_REPO> tess
+cd tess
+cp .env.server.example .env.server
+```
+
+Edite o `.env.server` com senhas fortes e chaves reais (OpenAI/JWT).
+
+### 3) Subir aplicacao completa
+
+```bash
+npm run server:up
+```
+
+### 4) Aplicar migrations no banco de producao
+
+```bash
+npm run server:migrate
+```
+
+### 5) Operacao no dia a dia
+
+- `npm run server:logs` - logs da app e banco
+- `npm run server:down` - para os containers
+
+### 6) Dominio e HTTPS (recomendado)
+
+- Aponte o DNS para o IP do servidor.
+- Use um proxy reverso (Nginx/Caddy/Traefik) para expor a app na porta 80/443.
+- Se usar Cloudflare, mantenha SSL ativo e bloqueie acesso direto desnecessario.
+
+> Fluxo recomendado para atualizacao: `git pull` -> `npm run server:up` -> `npm run server:migrate`.
+
+## Conectar no MySQL da Hostinger (phpMyAdmin)
+
+Se voce vai usar o banco gerenciado da Hostinger (acesso via phpMyAdmin), configure apenas a `DATABASE_URL` com os dados do painel da Hostinger.
+
+Formato:
+
+```env
+DATABASE_URL="mysql://USUARIO:SENHA_URL_ENCODED@HOST:3306/NOME_DO_BANCO"
+```
+
+Exemplo com os dados que voce informou (senha com `@` deve ser encoded como `%40`):
+
+```env
+DATABASE_URL="mysql://u305836601_TESS_KEYDB:SENHA_URL_ENCODED@HOSTINGER_DB_HOST:3306/u305836601_tess_IA"
+```
+
+> Troque `HOSTINGER_DB_HOST` pelo host real do MySQL mostrado no painel da Hostinger.
+
+### Passos recomendados
+
+1. Atualize o `.env` local com a `DATABASE_URL` da Hostinger.
+2. Gere o client Prisma: `npm run prisma:generate`.
+3. Aplique estrutura no banco remoto: `npm run prisma:deploy`.
+4. Valide a conexao: acesse `/api/health` com a app em execucao.
+
+### Se der erro de conexao
+
+- Verifique se usuario/senha/host/porta estao corretos no painel da Hostinger.
+- Confirme se a senha foi URL-encoded (`@` -> `%40`, `#` -> `%23`, etc.).
+- Verifique se o plano/host permite conexao externa ao MySQL.
 
 ## Deploy na Hostinger (passo a passo)
 
